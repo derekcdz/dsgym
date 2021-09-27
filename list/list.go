@@ -117,19 +117,51 @@ func (l *List) Len() int {
 }
 
 func (l *List) MoveAfter(e, mark *Element) {
-	panic("implement me")
+	if e.belongsTo != l || mark.belongsTo != l || e == mark {
+		return
+	}
+	e.prev.next = e.next
+	e.next.prev = e.prev
+	e.prev = mark
+	e.next = mark.next
+	e.prev.next = e
+	e.next.prev = e
 }
 
 func (l *List) MoveBefore(e, mark *Element) {
-	panic("implement me")
+	if e.belongsTo != l || mark.belongsTo != l || e == mark {
+		return
+	}
+	e.prev.next = e.next
+	e.next.prev = e.prev
+	e.next = mark
+	e.prev = mark.prev
+	e.prev.next = e
+	e.next.prev = e
 }
 
 func (l *List) MoveToBack(e *Element) {
-	panic("implement me")
+	if e.belongsTo != l || e == l.root.prev {
+		return
+	}
+	e.prev.next = e.next
+	e.next.prev = e.prev
+	e.prev = l.root.prev
+	e.next = l.root
+	e.prev.next = e
+	e.next.prev = e
 }
 
 func (l *List) MoveToFront(e *Element) {
-	panic("implement me")
+	if e.belongsTo != l || e == l.root.next {
+		return
+	}
+	e.prev.next = e.next
+	e.next.prev = e.prev
+	e.next = l.root.next
+	e.prev = l.root
+	e.prev.next = e
+	e.next.prev = e
 }
 
 func (l List) PushBack(v interface{}) *Element {
