@@ -235,5 +235,15 @@ func (l *List) PushFrontList(other *List) {
 }
 
 func (l *List) Remove(e *Element) interface{} {
-	panic("implement me")
+	if e.belongsTo != l {
+		return nil
+	}
+	e.prev.next = e.next
+	e.next.prev = e.prev
+	e.prev = nil
+	e.next = nil
+	e.belongsTo = nil
+	value := e.Value
+	e.Value = nil
+	return value
 }
