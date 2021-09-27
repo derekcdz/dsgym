@@ -1,3 +1,4 @@
+// An imitation of container/list
 package list
 
 type Element struct {
