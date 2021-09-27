@@ -164,8 +164,17 @@ func (l *List) MoveToFront(e *Element) {
 	e.next.prev = e
 }
 
-func (l List) PushBack(v interface{}) *Element {
-	panic("implement me")
+func (l *List) PushBack(v interface{}) *Element {
+	e := &Element{
+		prev:      l.root.prev,
+		next:      l.root,
+		belongsTo: l,
+		Value:     v,
+	}
+	e.prev.next = e
+	e.next.prev = e
+	l.len++
+	return e
 }
 
 func (l *List) PushBackList(other *List) {
@@ -173,7 +182,16 @@ func (l *List) PushBackList(other *List) {
 }
 
 func (l *List) PushFront(v interface{}) *Element {
-	panic("implement me")
+	e := &Element{
+		prev:      l.root,
+		next:      l.root.next,
+		belongsTo: l,
+		Value:     v,
+	}
+	e.prev.next = e
+	e.next.prev = e
+	l.len++
+	return e
 }
 
 func (l *List) PushFrontList(other *List) {
