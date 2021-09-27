@@ -10,14 +10,14 @@ type Element struct {
 }
 
 func (e *Element) Next() *Element {
-	if e.belongsTo == nil || e.next == &e.belongsTo.root {
+	if e.belongsTo == nil || e.next.belongsTo == nil {
 		return nil
 	}
 	return e.next
 }
 
 func (e *Element) Prev() *Element {
-	if e.belongsTo == nil || e.prev == &e.belongsTo.root {
+	if e.belongsTo == nil || e.prev.belongsTo == nil {
 		return nil
 	}
 	return e.prev
@@ -194,7 +194,9 @@ func (l *List) PushBackList(other *List) {
 	}
 	tail := l.root.prev
 
-	for e := other.Front(); e != nil; e = e.Next() {
+	stop := tail
+
+	for e := other.Front(); e != stop && e != nil; e = e.Next() {
 		e2 := &Element{
 			prev:      tail,
 			next:      tail.next,
@@ -203,7 +205,11 @@ func (l *List) PushBackList(other *List) {
 		}
 		tail.next = e2
 		tail = tail.next
+		if e == stop {
+			break
+		}
 	}
+	l.root.prev = tail
 	l.len += other.len
 }
 
@@ -227,6 +233,7 @@ func (l *List) PushFrontList(other *List) {
 		return
 	}
 	head := l.root.next
+	stop := head
 
 	for e := other.Back(); e != nil; e = e.Prev() {
 		e2 := &Element{
@@ -237,7 +244,11 @@ func (l *List) PushFrontList(other *List) {
 		}
 		head.prev = e2
 		head = head.prev
+		if e == stop {
+			break
+		}
 	}
+	l.root.next = head
 	l.len += other.len
 }
 
