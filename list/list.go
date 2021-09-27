@@ -253,5 +253,6 @@ func (l *List) Remove(e *Element) interface{} {
 	e.belongsTo = nil
 	value := e.Value
 	e.Value = nil
+	l.len--
 	return value
 }
