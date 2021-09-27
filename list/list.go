@@ -184,7 +184,22 @@ func (l *List) PushBack(v interface{}) *Element {
 }
 
 func (l *List) PushBackList(other *List) {
-	panic("implement me")
+	if other.len == 0 {
+		return
+	}
+	tail := l.root.prev
+
+	for e := other.Front(); e != nil; e = e.Next() {
+		e2 := &Element{
+			prev:      tail,
+			next:      tail.next,
+			belongsTo: l,
+			Value:     e.Value,
+		}
+		tail.next = e2
+		tail = tail.next
+	}
+	l.len += other.len
 }
 
 func (l *List) PushFront(v interface{}) *Element {
@@ -201,7 +216,22 @@ func (l *List) PushFront(v interface{}) *Element {
 }
 
 func (l *List) PushFrontList(other *List) {
-	panic("implement me")
+	if other.len == 0 {
+		return
+	}
+	tail := l.root.prev
+
+	for e := other.Front(); e != nil; e = e.Next() {
+		e2 := &Element{
+			prev:      tail,
+			next:      tail.next,
+			belongsTo: l,
+			Value:     e.Value,
+		}
+		tail.next = e2
+		tail = tail.next
+	}
+	l.len += other.len
 }
 
 func (l *List) Remove(e *Element) interface{} {
