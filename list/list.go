@@ -10,14 +10,14 @@ type Element struct {
 }
 
 func (e *Element) Next() *Element {
-	if e.belongsTo == nil || e.next == e.belongsTo.root {
+	if e.belongsTo == nil || e.next == &e.belongsTo.root {
 		return nil
 	}
 	return e.next
 }
 
 func (e *Element) Prev() *Element {
-	if e.belongsTo == nil || e.prev == e.belongsTo.root {
+	if e.belongsTo == nil || e.prev == &e.belongsTo.root {
 		return nil
 	}
 	return e.prev
@@ -29,19 +29,14 @@ type IElement interface {
 }
 
 type List struct {
-	root *Element
+	root Element
 	len  int
 }
 
 func New() *List {
-	root := new(Element)
-	root.prev = root
-	root.next = root
-
-	return &List{
-		root: root,
-		len:  0,
-	}
+	l := List{}
+	l.Init()
+	return &l
 }
 
 type IList interface {
@@ -64,7 +59,7 @@ type IList interface {
 
 func (l *List) Back() *Element {
 	back := l.root.prev
-	if back == l.root {
+	if back == &l.root {
 		return nil
 	}
 	return back
@@ -72,17 +67,23 @@ func (l *List) Back() *Element {
 
 func (l *List) Front() *Element {
 	front := l.root.next
-	if front == l.root {
+	if front == &l.root {
 		return nil
 	}
 	return front
 }
 
 func (l *List) Init() *List {
-	l.root.prev = l.root
-	l.root.next = l.root
+	l.root.prev = &l.root
+	l.root.next = &l.root
 	l.len = 0
 	return l
+}
+
+func (l *List) checkAndInit() {
+	if l.root.next == nil {
+		l.Init()
+	}
 }
 
 func (l *List) InsertAfter(v interface{}, mark *Element) *Element {
@@ -147,33 +148,36 @@ func (l *List) MoveBefore(e, mark *Element) {
 }
 
 func (l *List) MoveToBack(e *Element) {
+	l.checkAndInit()
 	if e.belongsTo != l || e == l.root.prev {
 		return
 	}
 	e.prev.next = e.next
 	e.next.prev = e.prev
 	e.prev = l.root.prev
-	e.next = l.root
+	e.next = &l.root
 	e.prev.next = e
 	e.next.prev = e
 }
 
 func (l *List) MoveToFront(e *Element) {
+	l.checkAndInit()
 	if e.belongsTo != l || e == l.root.next {
 		return
 	}
 	e.prev.next = e.next
 	e.next.prev = e.prev
 	e.next = l.root.next
-	e.prev = l.root
+	e.prev = &l.root
 	e.prev.next = e
 	e.next.prev = e
 }
 
 func (l *List) PushBack(v interface{}) *Element {
+	l.checkAndInit()
 	e := &Element{
 		prev:      l.root.prev,
-		next:      l.root,
+		next:      &l.root,
 		belongsTo: l,
 		Value:     v,
 	}
@@ -184,6 +188,7 @@ func (l *List) PushBack(v interface{}) *Element {
 }
 
 func (l *List) PushBackList(other *List) {
+	l.checkAndInit()
 	if other.len == 0 {
 		return
 	}
@@ -203,8 +208,9 @@ func (l *List) PushBackList(other *List) {
 }
 
 func (l *List) PushFront(v interface{}) *Element {
+	l.checkAndInit()
 	e := &Element{
-		prev:      l.root,
+		prev:      &l.root,
 		next:      l.root.next,
 		belongsTo: l,
 		Value:     v,
@@ -216,25 +222,27 @@ func (l *List) PushFront(v interface{}) *Element {
 }
 
 func (l *List) PushFrontList(other *List) {
+	l.checkAndInit()
 	if other.len == 0 {
 		return
 	}
-	tail := l.root.prev
+	head := l.root.next
 
-	for e := other.Front(); e != nil; e = e.Next() {
+	for e := other.Back(); e != nil; e = e.Prev() {
 		e2 := &Element{
-			prev:      tail,
-			next:      tail.next,
+			prev:      head.prev,
+			next:      head,
 			belongsTo: l,
 			Value:     e.Value,
 		}
-		tail.next = e2
-		tail = tail.next
+		head.prev = e2
+		head = head.prev
 	}
 	l.len += other.len
 }
 
 func (l *List) Remove(e *Element) interface{} {
+	l.checkAndInit()
 	if e.belongsTo != l {
 		return nil
 	}
