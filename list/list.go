@@ -10,10 +10,16 @@ type Element struct {
 }
 
 func (e *Element) Next() *Element {
+	if e.belongsTo == nil || e.next == e.belongsTo.root {
+		return nil
+	}
 	return e.next
 }
 
 func (e *Element) Prev() *Element {
+	if e.belongsTo == nil || e.prev == e.belongsTo.root {
+		return nil
+	}
 	return e.prev
 }
 
