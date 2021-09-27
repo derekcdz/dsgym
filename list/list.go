@@ -263,7 +263,7 @@ func (l *List) Remove(e *Element) interface{} {
 	e.next = nil
 	e.belongsTo = nil
 	value := e.Value
-	e.Value = nil
+	//e.Value = nil // should not set to nil, see https://groups.google.com/forum/#!topic/golang-nuts/HGCY7IanlvU
 	l.len--
 	return value
 }
