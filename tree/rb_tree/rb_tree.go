@@ -118,7 +118,7 @@ func (x *node) rotateLeft() *node {
 	res.left = x
 	res.color, x.color = x.color, res.color
 
-	res.calcSize()
+	res.size = x.size
 	x.calcSize()
 	return res
 }
@@ -132,7 +132,7 @@ func (x *node) rotateRight() *node {
 	res.right = x
 	res.color, x.color = x.color, res.color
 
-	res.calcSize()
+	res.size = x.size
 	x.calcSize()
 	return res
 }
