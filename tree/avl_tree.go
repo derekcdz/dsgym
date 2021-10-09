@@ -39,7 +39,7 @@ func (t *AvlTree) Add(k Key) bool {
 		t.root = &Node{
 			left:   nil,
 			right:  nil,
-			height: 1,
+			height: 0,
 			key:    k,
 		}
 		t.size = 1

@@ -31,7 +31,7 @@ func TestAvlTree_Add(t *testing.T) {
 	tree := New()
 	tree.Add(intKey(1))
 	assert.Equal(t, intKey(1), tree.root.key)
-	assert.Equal(t, 1, tree.root.height)
+	assert.Equal(t, 0, tree.root.height)
 	tree.Add(intKey(3))
 	tree.Add(intKey(2))
 	tree.Add(intKey(1))
