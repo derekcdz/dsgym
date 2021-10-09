@@ -174,6 +174,26 @@ func TestAvlTree_Size(t *testing.T) {
 	assert.Equal(t, tree.size, tree.Size())
 }
 
+func TestAvlTree_Contains(t *testing.T) {
+	var tree AvlTree
+	tree.Add(intKey(0))
+	tree.Add(intKey(1))
+	tree.Add(intKey(2))
+	tree.Add(intKey(3))
+	tree.Add(intKey(4))
+	tree.Add(intKey(5))
+	assert.True(t, tree.Contains(intKey(0)))
+	assert.True(t, tree.Contains(intKey(1)))
+	assert.True(t, tree.Contains(intKey(2)))
+	assert.True(t, tree.Contains(intKey(3)))
+	assert.True(t, tree.Contains(intKey(4)))
+	assert.True(t, tree.Contains(intKey(5)))
+	assert.False(t, tree.Contains(intKey(10)))
+	assert.False(t, tree.Contains(intKey(100)))
+	assert.True(t, tree.Remove(intKey(0)))
+	assert.False(t, tree.Contains(intKey(0)))
+}
+
 func TestAvlTree_ToSlice(t *testing.T) {
 	tree := New()
 	sl1 := []int{0, 1, 2, 3, 4, 5, 6}
