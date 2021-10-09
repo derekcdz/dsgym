@@ -1,7 +1,6 @@
 package tree
 
 type Node struct {
-	parent *Node
 	left   *Node
 	right  *Node
 	height int
@@ -17,30 +16,27 @@ type AvlTree struct {
 	size int
 }
 
-type Tree AvlTree
-
-func New() *Tree {
-	t := Tree{
+func New() *AvlTree {
+	t := AvlTree{
 		root: nil,
 		size: 0,
 	}
 	return &t
 }
 
-func (t *Tree) Init() *Tree {
+func (t *AvlTree) Init() *AvlTree {
 	t.root = nil
 	t.size = 0
 	return t
 }
 
-func (t *Tree) Size() int {
+func (t *AvlTree) Size() int {
 	return t.size
 }
 
-func (t *Tree) Add(k Key) {
+func (t *AvlTree) Add(k Key) bool {
 	if t.root == nil {
 		t.root = &Node{
-			parent: nil,
 			left:   nil,
 			right:  nil,
 			height: 1,
@@ -48,15 +44,51 @@ func (t *Tree) Add(k Key) {
 		}
 		t.size = 1
 	} else {
-
-		t.root = insert(t.root, k)
+		if t.root.find(k) != nil {
+			return false
+		}
+		t.root = t.root.insert(k)
 		t.size++
 	}
+	return true
+}
+
+func (t *AvlTree) Remove(k Key) bool {
+	node := t.root.find(k)
+	if node == nil {
+		return false
+	} else {
+		t.root = t.root.remove(k)
+		t.size--
+		return true
+	}
+}
+
+func (t *AvlTree) Min() Key {
+	if t.root == nil {
+		return nil
+	}
+	return t.root.findMin().key
+}
+
+func (t *AvlTree) Max() Key {
+	if t.root == nil {
+		return nil
+	}
+	return t.root.findMax().key
+}
+
+func (t *AvlTree) Contains(k Key) bool {
+	if t.root == nil {
+		return false
+	}
+
+	node := t.root.find(k)
+	return node != nil
 }
 
 func newNode(key Key) *Node {
 	return &Node{
-		parent: nil,
 		left:   nil,
 		right:  nil,
 		height: 1,
@@ -83,7 +115,7 @@ func (t *Node) calcHeight() int {
 	return t.height
 }
 
-func adjust(t *Node) *Node {
+func (t *Node) adjust() *Node {
 	if t == nil {
 		return nil
 	}
@@ -154,22 +186,70 @@ func rotateRight(t *Node) *Node {
 	return res
 }
 
-func insert(t *Node, k Key) *Node {
+func (t *Node) insert(k Key) *Node {
 	if t == nil {
 		return newNode(k)
 	}
 	res := k.CompareTo(t.key)
 	if res < 0 {
-		t.left = insert(t.left, k)
+		t.left = t.left.insert(k)
 	} else if res > 0 {
-		t.right = insert(t.right, k)
+		t.right = t.right.insert(k)
 	} else {
 		return t // existing key not accepted
 	}
-	return adjust(t)
+	return t.adjust()
 }
 
-func (t *Tree) Apply(f func(Key)) {
+func (t *Node) findMin() *Node {
+	if t == nil {
+		return nil
+	}
+	if t.left != nil {
+		return t.left.findMin()
+	}
+	return t
+}
+
+func (t *Node) findMax() *Node {
+	if t == nil {
+		return nil
+	}
+	if t.right != nil {
+		return t.right.findMax()
+	}
+	return t
+}
+
+func (t *Node) remove(k Key) *Node {
+	if t == nil {
+		return nil
+	}
+
+	newRoot := t
+	res := k.CompareTo(t.key)
+	if res < 0 {
+		t.left = t.left.remove(k)
+	} else if res > 0 {
+		t.right = t.right.remove(k)
+	} else {
+		if t.left == nil {
+			newRoot = t.right
+			t.right = nil
+		} else if t.right == nil {
+			newRoot = t.left
+			t.left = nil
+		} else {
+			pred := t.left.findMax()
+			t.left = t.left.remove(pred.key)
+			t.key = pred.key
+		}
+	}
+
+	return newRoot.adjust()
+}
+
+func (t *AvlTree) apply(f func(Key)) {
 	if t.root == nil {
 		return
 	}
@@ -177,12 +257,12 @@ func (t *Tree) Apply(f func(Key)) {
 }
 
 // ToSlice returns a slice of stored values, which are sorted
-func (t *Tree) ToSlice() []Key {
+func (t *AvlTree) ToSlice() []Key {
 	res := make([]Key, 0, t.size)
 	appendToSlice := func(k Key) {
 		res = append(res, k)
 	}
-	t.Apply(appendToSlice)
+	t.apply(appendToSlice)
 	return res
 }
 
@@ -193,4 +273,18 @@ func (t *Node) traverse(f func(Key)) {
 	t.left.traverse(f)
 	f(t.key)
 	t.right.traverse(f)
+}
+
+func (t *Node) find(k Key) *Node {
+	if t == nil {
+		return nil
+	}
+	res := k.CompareTo(t.key)
+	if res < 0 {
+		return t.left.find(k)
+	} else if res > 0 {
+		return t.right.find(k)
+	} else {
+		return t
+	}
 }
