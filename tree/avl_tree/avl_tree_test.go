@@ -1,4 +1,4 @@
-package tree
+package avl_tree
 
 import (
 	"github.com/stretchr/testify/assert"

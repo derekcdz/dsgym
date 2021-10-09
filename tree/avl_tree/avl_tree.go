@@ -1,4 +1,4 @@
-package tree
+package avl_tree
 
 type Node struct {
 	left   *Node
