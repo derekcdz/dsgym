@@ -179,6 +179,20 @@ func (x *node) find(k Key) *node {
 	}
 }
 
+func (x *node) findMin() *node {
+	if x.getLeft() == nil {
+		return x
+	}
+	return x.left.findMin()
+}
+
+func (x *node) findMax() *node {
+	if x.getRight() == nil {
+		return x
+	}
+	return x.right.findMax()
+}
+
 func (t *RBTree) Init() {
 	t.root = nil
 	t.size = 0
