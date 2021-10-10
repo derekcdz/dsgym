@@ -60,27 +60,35 @@ func TestRBTree(t *testing.T) {
 	println()
 	var rbt RBTree
 
-	N := 7
+	N := 1000
+	L := 5
 
 	dict := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 	for i := 0; i < N; i++ {
 		l := len(dict)
-		j := rand.Intn(l)
-		rbt.Put(str(string(dict[j])), string(dict[j]))
-		fmt.Printf("Insert: %v\n", string(dict[j]))
-		assert.False(t, checkViolation(rbt.root))
-		printKeys(rbt.root)
-
+		s := make([]uint8, L)
+		for j := 0; j < L; j++ {
+			p := rand.Intn(l)
+			s[j] = dict[p]
+		}
+		rbt.Put(str(string(s)), string(s))
+		//fmt.Printf("Insert: %v\n", string(dict[j]))
+		if checkViolation(rbt.root) {
+			fm := fmt.Sprintf("Red-Black Tree definition violated, i: %d, word: %s\n", i, s)
+			assert.Failf(t, fm, "Should not break Red-Black Tree rules at any time")
+			break
+		}
+		//printKeys(rbt.root)
 	}
-	bh := calcBH(rbt.root)
-	fmt.Printf("%d\n", bh)
-	printKeys(rbt.root)
+	//bh := calcBH(rbt.root)
+	//fmt.Printf("%d\n", bh)
+	//printKeys(rbt.root)
 
 	rbt.Init()
 	putEachChar(&rbt, "ABC")
-	bh = calcBH(rbt.root)
-	fmt.Printf("%d\n", bh)
+	//bh = calcBH(rbt.root)
+	//fmt.Printf("%d\n", bh)
 	assert.False(t, checkViolation(rbt.root))
 	//printKeys(rbt.root)
 	println()
@@ -139,7 +147,7 @@ func calcBH(x *node) int {
 	} else {
 		bh += bhl
 	}
-	fmt.Printf("Key: %v, bhl: %v, bhr: %v, bh: %v\n", x.key, bhl, bhr, bhr)
+	//fmt.Printf("Key: %v, bhl: %v, bhr: %v, bh: %v\n", x.key, bhl, bhr, bhr)
 	return bh
 }
 
