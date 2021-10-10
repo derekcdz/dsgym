@@ -213,5 +213,10 @@ func (t *RBTree) Put(k Key, v Value) {
 	} else {
 		t.root = t.root.insert(k, v)
 		t.root.color = BLACK
+		t.size = t.root.size
 	}
+}
+
+func (t *RBTree) Size() int {
+	return t.size
 }
