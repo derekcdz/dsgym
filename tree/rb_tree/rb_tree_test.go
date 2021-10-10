@@ -3,6 +3,7 @@ package rb_tree
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
 	"testing"
 )
 
@@ -54,11 +55,33 @@ func TestRBTree_Get(t *testing.T) {
 }
 
 func TestRBTree(t *testing.T) {
+	rand.Seed(42)
+
 	println()
 	var rbt RBTree
 
-	putEachChar(&rbt, "ABCDEFGHIJKLMN")
+	N := 7
 
+	dict := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	for i := 0; i < N; i++ {
+		l := len(dict)
+		j := rand.Intn(l)
+		rbt.Put(str(string(dict[j])), string(dict[j]))
+		fmt.Printf("Insert: %v\n", string(dict[j]))
+		assert.False(t, checkViolation(rbt.root))
+		printKeys(rbt.root)
+
+	}
+	bh := calcBH(rbt.root)
+	fmt.Printf("%d\n", bh)
+	printKeys(rbt.root)
+
+	rbt.Init()
+	putEachChar(&rbt, "ABC")
+	bh = calcBH(rbt.root)
+	fmt.Printf("%d\n", bh)
+	assert.False(t, checkViolation(rbt.root))
 	//printKeys(rbt.root)
 	println()
 }
@@ -90,4 +113,40 @@ func putEachChar(tree *RBTree, s string) {
 	for _, x := range s {
 		tree.Put(str(string(x)), string(x))
 	}
+}
+
+func calcBH(x *node) int {
+	if x == nil {
+		return 0
+	}
+
+	bh := 0
+
+	if !x.isRed() {
+		bh = 1
+	}
+
+	bhl := calcBH(x.left)
+	bhr := calcBH(x.right)
+	if x.left == nil {
+		bhl = bhr
+	}
+	if x.right == nil {
+		bhr = bhl
+	}
+	if bhl != bhr || bhl == -1 {
+		bh = -1
+	} else {
+		bh += bhl
+	}
+	fmt.Printf("Key: %v, bhl: %v, bhr: %v, bh: %v\n", x.key, bhl, bhr, bhr)
+	return bh
+}
+
+func checkViolation(x *node) bool {
+	if calcBH(x) == -1 {
+		return true
+	}
+
+	return false
 }
