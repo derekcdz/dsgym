@@ -151,13 +151,13 @@ func (x *node) insert(k Key, v Value) *node {
 		}
 
 		res := x
-		if x.right.isRed() && !x.left.isRed() {
+		if res.right.isRed() && !res.left.isRed() {
 			res = res.rotateLeft()
 		}
-		if x.left.isRed() && x.left.getLeft().isRed() {
+		if res.left.isRed() && res.left.getLeft().isRed() {
 			res = res.rotateRight()
 		}
-		if x.left.isRed() && x.right.isRed() {
+		if res.left.isRed() && res.right.isRed() {
 			res.flipColors()
 		}
 		res.calcSize()
