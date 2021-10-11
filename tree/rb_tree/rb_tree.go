@@ -54,7 +54,6 @@ type node struct {
 
 type RBTree struct {
 	root *node
-	size int
 }
 
 func (x *node) isRed() bool {
@@ -243,7 +242,6 @@ func (x *node) deleteMin() *node {
 
 func (t *RBTree) Init() {
 	t.root = nil
-	t.size = 0
 }
 
 func (t *RBTree) Get(k Key) Value {
@@ -257,20 +255,21 @@ func (t *RBTree) Get(k Key) Value {
 func (t *RBTree) Put(k Key, v Value) {
 	if t.root == nil {
 		t.root = newNode(k, v, BLACK)
-		t.size = 0
 	} else {
 		t.root = t.root.insert(k, v)
 		t.root.color = BLACK
-		t.size = t.root.size
 	}
 }
 
 func (t *RBTree) IsEmpty() bool {
-	return t.size == 0
+	return t.Size() == 0
 }
 
 func (t *RBTree) Size() int {
-	return t.size
+	if t.root == nil {
+		return 0
+	}
+	return t.root.size
 }
 
 func (t *RBTree) Min() Key {

@@ -22,7 +22,7 @@ func TestRBTree_Init(t *testing.T) {
 	var rbt RBTree
 	rbt.Put(str("A"), "A")
 	rbt.Init()
-	assert.Zero(t, rbt.size)
+	assert.Zero(t, rbt.Size())
 	assert.Nil(t, rbt.root)
 }
 
@@ -30,7 +30,7 @@ func TestRBTree_Put(t *testing.T) {
 	var rbt RBTree
 	rbt.Put(str("A"), "A")
 	rbt.Put(str("X"), "X")
-	assert.Equal(t, 2, rbt.size)
+	assert.Equal(t, 2, rbt.Size())
 }
 
 func TestRBTree_Put2(t *testing.T) {
@@ -52,6 +52,32 @@ func TestRBTree_Get(t *testing.T) {
 	assert.Nil(t, rbt.Get(str("a")))
 	assert.Nil(t, rbt.Get(str("z")))
 	assert.Nil(t, rbt.Get(str("Z")))
+}
+
+func TestRBTree_IsEmpty(t *testing.T) {
+	var rbt RBTree
+	assert.True(t, rbt.IsEmpty())
+	rbt.Put(str("A"), "A")
+	assert.Equal(t, 1, rbt.Size())
+	assert.False(t, rbt.IsEmpty())
+}
+
+func TestRBTree_Min(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHI"
+	for i := len(s) - 1; i > 0; i-- {
+		rbt.Put(str(string(s[i])), "A")
+		assert.Equal(t, str(string(s[i])), rbt.Min())
+	}
+}
+
+func TestRBTree_DeleteMin(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHI"
+	putEachChar(&rbt, s)
+	//for _, c := range s {
+	//	assert.False(t, rbt.IsEmpty())
+	//}
 }
 
 func TestRBTree(t *testing.T) {
