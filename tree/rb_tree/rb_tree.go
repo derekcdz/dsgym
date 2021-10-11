@@ -217,6 +217,26 @@ func (t *RBTree) Put(k Key, v Value) {
 	}
 }
 
+func (t *RBTree) IsEmpty() bool {
+	return t.size == 0
+}
+
 func (t *RBTree) Size() int {
 	return t.size
+}
+
+func (t *RBTree) Min() Key {
+	min := t.root.findMin()
+	if min == nil {
+		return nil
+	}
+	return min.key
+}
+
+func (t *RBTree) Max() Key {
+	max := t.root.findMax()
+	if max == nil {
+		return nil
+	}
+	return max.key
 }
