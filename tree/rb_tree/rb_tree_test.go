@@ -75,9 +75,13 @@ func TestRBTree_DeleteMin(t *testing.T) {
 	var rbt RBTree
 	s := "ABCDEFGHI"
 	putEachChar(&rbt, s)
-	//for _, c := range s {
-	//	assert.False(t, rbt.IsEmpty())
-	//}
+	for _, c := range s {
+		assert.False(t, rbt.IsEmpty())
+		assert.Equal(t, str(string(c)), rbt.Min())
+		rbt.DeleteMin()
+	}
+	assert.Nil(t, rbt.Min())
+	assert.True(t, rbt.IsEmpty())
 }
 
 func TestRBTree(t *testing.T) {

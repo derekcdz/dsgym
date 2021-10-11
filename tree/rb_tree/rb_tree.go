@@ -236,7 +236,7 @@ func (x *node) deleteMin() *node {
 	if !nx.left.isRed() && !nx.left.getLeft().isRed() {
 		nx = nx.moveRedLeft()
 	}
-	nx.left = nx.left.moveRedLeft()
+	nx.left = nx.left.deleteMin()
 	return nx.balance()
 }
 
