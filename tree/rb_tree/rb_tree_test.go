@@ -65,7 +65,7 @@ func TestRBTree_IsEmpty(t *testing.T) {
 func TestRBTree_Min(t *testing.T) {
 	var rbt RBTree
 	s := "ABCDEFGHI"
-	for i := len(s) - 1; i > 0; i-- {
+	for i := len(s) - 1; i >= 0; i-- {
 		rbt.Put(str(string(s[i])), "A")
 		assert.Equal(t, str(string(s[i])), rbt.Min())
 	}
@@ -81,6 +81,19 @@ func TestRBTree_DeleteMin(t *testing.T) {
 		rbt.DeleteMin()
 	}
 	assert.Nil(t, rbt.Min())
+	assert.True(t, rbt.IsEmpty())
+}
+
+func TestRBTree_DeleteMax(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHI"
+	putEachChar(&rbt, s)
+	for i := len(s) - 1; i >= 0; i-- {
+		assert.False(t, rbt.IsEmpty())
+		assert.Equal(t, str(string(s[i])), rbt.Max())
+		rbt.DeleteMax()
+	}
+	assert.Nil(t, rbt.Max())
 	assert.True(t, rbt.IsEmpty())
 }
 

@@ -240,6 +240,31 @@ func (x *node) deleteMin() *node {
 	return nx.balance()
 }
 
+// x is red and both x.right and x.right.left are black
+func (x *node) moveRedRight() *node {
+	nx := x
+	nx.flipColors()
+	if !nx.left.getLeft().isRed() {
+		nx = nx.rotateRight()
+	}
+	return nx
+}
+
+func (x *node) deleteMax() *node {
+	nx := x
+	if nx.left.isRed() {
+		nx = nx.rotateRight()
+	}
+	if nx.right == nil {
+		return nil
+	}
+	if !nx.right.isRed() && !nx.right.getLeft().isRed() {
+		nx = nx.moveRedRight()
+	}
+	nx.right = nx.right.deleteMax()
+	return nx.balance()
+}
+
 func (t *RBTree) Init() {
 	t.root = nil
 }
@@ -296,6 +321,19 @@ func (t *RBTree) DeleteMin() {
 		t.root.color = RED
 	}
 	t.root = t.root.deleteMin()
+	if t.root != nil {
+		t.root.color = BLACK
+	}
+}
+
+func (t *RBTree) DeleteMax() {
+	if t.root == nil {
+		return
+	}
+	if !t.root.left.isRed() && !t.root.right.isRed() {
+		t.root.color = RED
+	}
+	t.root = t.root.deleteMax()
 	if t.root != nil {
 		t.root.color = BLACK
 	}
