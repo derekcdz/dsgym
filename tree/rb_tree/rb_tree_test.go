@@ -147,10 +147,21 @@ func TestRBTree_Delete(t *testing.T) {
 	}
 }
 
+func TestRBTree_Contains(t *testing.T) {
+	var rbt RBTree
+	putEachChar(&rbt, "ABCDE")
+	assert.True(t, rbt.Contains(str("A")))
+	assert.True(t, rbt.Contains(str("B")))
+	assert.True(t, rbt.Contains(str("C")))
+	assert.True(t, rbt.Contains(str("D")))
+	assert.True(t, rbt.Contains(str("E")))
+	assert.False(t, rbt.Contains(str("F")))
+	assert.False(t, rbt.Contains(str("G")))
+}
+
 func TestRBTree(t *testing.T) {
 	rand.Seed(42)
 
-	println()
 	var rbt RBTree
 
 	N := 1000
