@@ -328,6 +328,80 @@ func (x *node) ceiling(k Key) *node {
 	}
 }
 
+func (x *node) getNth(n int) *node {
+	if x == nil {
+		return nil
+	}
+	rank := 0
+	if x.left != nil {
+		rank += x.left.size
+	}
+	if rank == n {
+		return x
+	}
+	if rank > n {
+		return x.left.getNth(n)
+	} else {
+		return x.right.getNth(n - rank - 1)
+	}
+}
+
+func (x *node) rank(k Key, acc int) int {
+	if x == nil {
+		return -1
+	}
+	cmp := k.CompareTo(x.key)
+	if cmp < 0 {
+		return x.left.rank(k, acc)
+	} else {
+		if x.left != nil {
+			acc += x.left.size
+		}
+		if cmp == 0 {
+			return acc
+		}
+		return x.right.rank(k, acc+1)
+	}
+}
+
+// sizeLess returns number of Key which are strictly less than k
+func (x *node) sizeLess(k Key, acc int) int {
+	if x == nil {
+		return 0
+	}
+	cmp := k.CompareTo(x.key)
+	if cmp < 0 {
+		return x.left.sizeLess(k, acc)
+	} else {
+		if x.left != nil {
+			acc += x.left.size
+		}
+		if cmp > 0 {
+			return x.right.sizeLess(k, acc+1)
+		}
+		return acc
+	}
+}
+
+// sizeGreater returns number of Key which are strictly greater than k
+func (x *node) sizeGreater(k Key, acc int) int {
+	if x == nil {
+		return 0
+	}
+	cmp := k.CompareTo(x.key)
+	if cmp > 0 {
+		return x.right.sizeGreater(k, acc)
+	} else {
+		if x.right != nil {
+			acc += x.right.size
+		}
+		if cmp < 0 {
+			return x.left.sizeGreater(k, acc+1)
+		}
+		return acc
+	}
+}
+
 // Init initializes the tree, it deletes all keys from the tree
 func (t *RBTree) Init() {
 	t.root = nil
@@ -427,6 +501,22 @@ func (t *RBTree) Ceiling(k Key) Key {
 	return x.key
 }
 
+// Select returns the key which ranks r-th (staring from 0, in order of Key's comparator) in the tree
+// nil is returned when r < 0 or r >= t.Size()
+// e.g. Select(0) returns the smallest Key
+func (t *RBTree) Select(r int) Key {
+	if r < 0 || r >= t.Size() {
+		return nil
+	}
+	return t.root.getNth(r).key
+}
+
+// If Key k is in the tree, the rank of k is returned (staring from 0, in order of Key's comparator)
+// otherwise -1 is returned
+func (t *RBTree) Rank(k Key) int {
+	return t.root.rank(k, 0)
+}
+
 // DeleteMin deletes the minimum key from the tree
 func (t *RBTree) DeleteMin() {
 	if t.root == nil {
@@ -453,6 +543,13 @@ func (t *RBTree) DeleteMax() {
 	if t.root != nil {
 		t.root.color = BLACK
 	}
+}
+
+func (t *RBTree) SizeBetween(lb, ub Key) int {
+	if lb.CompareTo(ub) > 0 {
+		return 0
+	}
+	return t.Size() - t.root.sizeLess(lb, 0) - t.root.sizeGreater(ub, 0)
 }
 
 // Keys returns a slice of Key which including all keys in the tree

@@ -297,8 +297,51 @@ func TestRBTree_Ceiling(t *testing.T) {
 	assert.Nil(t, rbt.Ceiling(str(s[len(s)-1]+1)))
 }
 
+func TestRBTree_Select(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHIJKLMN"
+	putEachChar(&rbt, s)
+
+	for i, x := range s {
+		assert.Equal(t, str(string(x)), rbt.Select(i))
+		assert.Equal(t, i, rbt.Rank(rbt.Select(i)))
+	}
+}
+
+func TestRBTree_Rank(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHIJKLMN"
+	putEachChar(&rbt, s)
+
+	for i, x := range s {
+		assert.Equal(t, i, rbt.Rank(str(string(x))))
+		assert.Equal(t, str(string(x)), rbt.Select(rbt.Rank(str(string(x)))))
+	}
+}
+
+func TestRBTree_SizeBetween(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHIJKLMN"
+	putEachChar(&rbt, s)
+
+	assert.Equal(t, 0, rbt.SizeBetween(str("Z"), str("A")))
+	assert.Equal(t, 3, rbt.SizeBetween(str("C"), str("E")))
+
+	for i := 0; i < len(s); i++ {
+		for j := 0; j < len(s); j++ {
+			if j < i {
+				assert.Equal(t, 0, rbt.SizeBetween(str(string(s[i])), str(string(s[j]))))
+			} else {
+				assert.Equal(t, j+1-i, rbt.SizeBetween(str(string(s[i])), str(string(s[j]))))
+			}
+		}
+	}
+
+}
+
 func TestRBTree(t *testing.T) {
 	rand.Seed(42)
+	printKeys(nil)
 
 	var rbt RBTree
 
@@ -315,24 +358,16 @@ func TestRBTree(t *testing.T) {
 			s[j] = dict[p]
 		}
 		rbt.Put(str(string(s)), string(s))
-		//fmt.Printf("Insert: %v\n", string(dict[j]))
 		if checkViolation(rbt.root) {
 			fm := fmt.Sprintf("Red-Black Tree definition violated, i: %d, word: %s\n", i, s)
 			assert.Failf(t, fm, "Should not break Red-Black Tree rules at any time")
 			break
 		}
-		//printKeys(rbt.root)
 	}
-	//bh := calcBH(rbt.root)
-	//fmt.Printf("%d\n", bh)
-	//printKeys(rbt.root)
 
 	rbt.Init()
 	putEachChar(&rbt, "ABC")
-	//bh = calcBH(rbt.root)
-	//fmt.Printf("%d\n", bh)
 	assert.False(t, checkViolation(rbt.root))
-	//printKeys(rbt.root)
 	println()
 }
 
