@@ -1,6 +1,5 @@
 // A map, as known as key-value tables, implemented with red-black tree
 // complexity of inserting, searching and deleting are all O(logN)
-
 package rb_tree
 
 type Key interface {
@@ -436,6 +435,9 @@ func (t *RBTree) Put(k Key, v Value) {
 
 // Delete deletes the Value associated with Key k from the tree if the key exists
 func (t *RBTree) Delete(k Key) {
+	if k == nil {
+		return
+	}
 	if t.root == nil {
 		return
 	}
@@ -450,6 +452,9 @@ func (t *RBTree) Delete(k Key) {
 
 // Contains returns whether a Value associated with Key k is stored in the tree
 func (t *RBTree) Contains(k Key) bool {
+	if k == nil {
+		return false
+	}
 	return t.root.find(k) != nil
 }
 
@@ -484,8 +489,11 @@ func (t *RBTree) Max() Key {
 	return max.key
 }
 
-// Floor returns the maximum key which is less than k
+// Floor returns the maximum key which is less than or equals k
 func (t *RBTree) Floor(k Key) Key {
+	if k == nil {
+		return nil
+	}
 	x := t.root.floor(k)
 	if x == nil {
 		return nil
@@ -493,7 +501,11 @@ func (t *RBTree) Floor(k Key) Key {
 	return x.key
 }
 
+// Floor returns the minimum key which is greater than or equals k
 func (t *RBTree) Ceiling(k Key) Key {
+	if k == nil {
+		return nil
+	}
 	x := t.root.ceiling(k)
 	if x == nil {
 		return nil
@@ -514,6 +526,9 @@ func (t *RBTree) Select(r int) Key {
 // If Key k is in the tree, the rank of k is returned (staring from 0, in order of Key's comparator)
 // otherwise -1 is returned
 func (t *RBTree) Rank(k Key) int {
+	if k == nil {
+		return -1
+	}
 	return t.root.rank(k, 0)
 }
 
@@ -545,7 +560,11 @@ func (t *RBTree) DeleteMax() {
 	}
 }
 
+// SizeBetween returns the number of Key that is in interval [lb, ub] (both sides included)
 func (t *RBTree) SizeBetween(lb, ub Key) int {
+	if lb == nil || ub == nil {
+		return 0
+	}
 	if lb.CompareTo(ub) > 0 {
 		return 0
 	}
@@ -572,7 +591,11 @@ func (t *RBTree) Keys() []Key {
 }
 
 // KeysBetween returns a sorted slice of Key, for each element k, k >= lb and k <= ub hold
+// if lb == nil or ub == nil, empty slice is returned
 func (t *RBTree) KeysBetween(lb, ub Key) []Key {
+	if lb == nil || ub == nil {
+		return []Key{}
+	}
 	keys := make([]Key, 0)
 	if lb.CompareTo(ub) > 0 {
 		return keys

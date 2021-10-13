@@ -30,6 +30,8 @@ func TestRBTree_Init(t *testing.T) {
 
 func TestRBTree_Put(t *testing.T) {
 	var rbt RBTree
+	rbt.Put(nil, nil)
+	assert.Equal(t, 0, rbt.Size())
 	rbt.Put(str("A"), "A")
 	rbt.Put(str("X"), "X")
 	assert.Equal(t, 2, rbt.Size())
@@ -158,6 +160,7 @@ func TestRBTree_Contains(t *testing.T) {
 	assert.True(t, rbt.Contains(str("E")))
 	assert.False(t, rbt.Contains(str("F")))
 	assert.False(t, rbt.Contains(str("G")))
+	assert.False(t, rbt.Contains(nil))
 }
 
 func TestRBTree_Keys(t *testing.T) {
@@ -227,6 +230,10 @@ func TestRBTree_KeysBetween(t *testing.T) {
 		str("A"),
 		str("B"),
 	}, ks)
+
+	assert.Equal(t, 0, rbt.SizeBetween(nil, nil))
+	assert.Equal(t, 0, rbt.SizeBetween(str("0"), nil))
+	assert.Equal(t, 0, rbt.SizeBetween(nil, str("Z")))
 }
 
 func TestRBTree_KeysBetween2(t *testing.T) {
@@ -281,6 +288,7 @@ func TestRBTree_Floor(t *testing.T) {
 		assert.Equal(t, str(x), rbt.Floor(str(x+1)))
 	}
 	assert.Nil(t, rbt.Floor(str(s[0]-1)))
+	assert.Nil(t, rbt.Floor(nil))
 }
 
 func TestRBTree_Ceiling(t *testing.T) {
@@ -295,6 +303,7 @@ func TestRBTree_Ceiling(t *testing.T) {
 		assert.Equal(t, str(x), rbt.Ceiling(str(x-1)))
 	}
 	assert.Nil(t, rbt.Ceiling(str(s[len(s)-1]+1)))
+	assert.Nil(t, rbt.Floor(nil))
 }
 
 func TestRBTree_Select(t *testing.T) {
@@ -317,6 +326,7 @@ func TestRBTree_Rank(t *testing.T) {
 		assert.Equal(t, i, rbt.Rank(str(string(x))))
 		assert.Equal(t, str(string(x)), rbt.Select(rbt.Rank(str(string(x)))))
 	}
+	assert.Equal(t, -1, rbt.Rank(nil))
 }
 
 func TestRBTree_SizeBetween(t *testing.T) {
@@ -336,12 +346,13 @@ func TestRBTree_SizeBetween(t *testing.T) {
 			}
 		}
 	}
-
+	assert.Zero(t, rbt.SizeBetween(str("A"), nil))
+	assert.Zero(t, rbt.SizeBetween(nil, nil))
+	assert.Zero(t, rbt.SizeBetween(nil, str("Z")))
 }
 
 func TestRBTree(t *testing.T) {
 	rand.Seed(42)
-	printKeys(nil)
 
 	var rbt RBTree
 
@@ -349,6 +360,8 @@ func TestRBTree(t *testing.T) {
 	L := 5
 
 	dict := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	mp := make(map[string]bool)
 
 	for i := 0; i < N; i++ {
 		l := len(dict)
@@ -358,6 +371,7 @@ func TestRBTree(t *testing.T) {
 			s[j] = dict[p]
 		}
 		rbt.Put(str(string(s)), string(s))
+		mp[string(s)] = true
 		if checkViolation(rbt.root) {
 			fm := fmt.Sprintf("Red-Black Tree definition violated, i: %d, word: %s\n", i, s)
 			assert.Failf(t, fm, "Should not break Red-Black Tree rules at any time")
@@ -365,34 +379,44 @@ func TestRBTree(t *testing.T) {
 		}
 	}
 
+	var i = 0
+	for k := range mp {
+		rbt.Delete(str(k))
+		if checkViolation(rbt.root) {
+			fm := fmt.Sprintf("Red-Black Tree definition violated, i: %d, word: %s\n", i, k)
+			assert.Failf(t, fm, "Should not break Red-Black Tree rules at any time")
+			break
+		}
+		i++
+	}
+
 	rbt.Init()
 	putEachChar(&rbt, "ABC")
 	assert.False(t, checkViolation(rbt.root))
-	println()
 }
 
-func getColorInt(x *node) int {
-	if x.color == RED {
-		return 1
-	} else {
-		return 0
-	}
-}
+//func getColorInt(x *node) int {
+//	if x.color == RED {
+//		return 1
+//	} else {
+//		return 0
+//	}
+//}
 
-func printKeys(x *node) {
-	if x == nil {
-		fmt.Printf("[] ")
-		return
-	}
-	if x.left != nil || x.right != nil {
-		fmt.Printf("[%v,%v ", x.key, getColorInt(x))
-		printKeys(x.left)
-		printKeys(x.right)
-		fmt.Printf("] ")
-	} else {
-		fmt.Printf("[%v,%v] ", x.key, getColorInt(x))
-	}
-}
+//func printKeys(x *node) {
+//	if x == nil {
+//		fmt.Printf("[] ")
+//		return
+//	}
+//	if x.left != nil || x.right != nil {
+//		fmt.Printf("[%v,%v ", x.key, getColorInt(x))
+//		printKeys(x.left)
+//		printKeys(x.right)
+//		fmt.Printf("] ")
+//	} else {
+//		fmt.Printf("[%v,%v] ", x.key, getColorInt(x))
+//	}
+//}
 
 func putEachChar(tree *RBTree, s string) {
 	for _, x := range s {
