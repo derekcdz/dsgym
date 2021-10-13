@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -157,6 +158,115 @@ func TestRBTree_Contains(t *testing.T) {
 	assert.True(t, rbt.Contains(str("E")))
 	assert.False(t, rbt.Contains(str("F")))
 	assert.False(t, rbt.Contains(str("G")))
+}
+
+func TestRBTree_Keys(t *testing.T) {
+	var rbt RBTree
+	s := "9876543210DCBA"
+	putEachChar(&rbt, s)
+	ks := rbt.Keys()
+	assert.Equal(t, len(s), len(ks))
+
+	assert.Equal(t, []Key{
+		str("0"),
+		str("1"),
+		str("2"),
+		str("3"),
+		str("4"),
+		str("5"),
+		str("6"),
+		str("7"),
+		str("8"),
+		str("9"),
+		str("A"),
+		str("B"),
+		str("C"),
+		str("D"),
+	}, ks)
+}
+
+func TestRBTree_Keys2(t *testing.T) {
+	var rbt RBTree
+	rbt.Put(str("A"), 1)
+	rbt.Put(str("ABA"), 1)
+	rbt.Put(str("BA"), 1)
+	rbt.Put(str("AC"), 1)
+	rbt.Put(str("AA"), 1)
+	rbt.Put(str("ZZZZZ"), 1)
+	rbt.Put(str("ZZZ"), 1)
+	rbt.Put(str(""), 1)
+
+	ks := rbt.Keys()
+	assert.Equal(t, rbt.Size(), len(ks))
+
+	assert.Equal(t, []Key{
+		str(""),
+		str("A"),
+		str("AA"),
+		str("ABA"),
+		str("AC"),
+		str("BA"),
+		str("ZZZ"),
+		str("ZZZZZ"),
+	}, ks)
+}
+
+func TestRBTree_KeysBetween(t *testing.T) {
+	var rbt RBTree
+	s := "9876543210DCBA"
+	putEachChar(&rbt, s)
+	ks := rbt.KeysBetween(str("5"), str("B"))
+	assert.Equal(t, 7, len(ks))
+
+	assert.Equal(t, []Key{
+		str("5"),
+		str("6"),
+		str("7"),
+		str("8"),
+		str("9"),
+		str("A"),
+		str("B"),
+	}, ks)
+}
+
+func TestRBTree_KeysBetween2(t *testing.T) {
+	rand.Seed(42)
+	var rbt RBTree
+	mp := make(map[string]string)
+	dict := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	N := 1000
+	L := 5
+
+	for i := 0; i < N; i++ {
+		var b strings.Builder
+		for j := 0; j < L; j++ {
+			b.WriteByte(dict[rand.Intn(len(dict))])
+		}
+		s := b.String()
+		mp[s] = s
+		rbt.Put(str(s), s)
+	}
+
+	keys := make([]string, 0)
+
+	for k := range mp {
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	assert.Greater(t, len(keys), 10)
+
+	lb := keys[4]
+	ub := keys[len(keys)-5]
+
+	ks2 := rbt.KeysBetween(str(lb), str(ub))
+	assert.Equal(t, len(ks2), len(keys)-8)
+
+	for i, x := range ks2 {
+		assert.Equal(t, str(keys[i+4]), x)
+	}
 }
 
 func TestRBTree(t *testing.T) {

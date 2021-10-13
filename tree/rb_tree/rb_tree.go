@@ -33,7 +33,7 @@ type SortedMap interface {
 	DeleteMax()
 	SizeBetween(Key, Key) int
 	Keys() []Key
-	KeysBetween() []Key
+	KeysBetween(Key, Key) []Key
 }
 
 const (
@@ -300,7 +300,12 @@ func (t *RBTree) Init() {
 	t.root = nil
 }
 
+// Given a Key k, Get will return the Value associated with k
+// When k is nil, a nli Value will be returned
 func (t *RBTree) Get(k Key) Value {
+	if k == nil {
+		return nil
+	}
 	x := t.root.find(k)
 	if x == nil {
 		return nil
@@ -308,7 +313,12 @@ func (t *RBTree) Get(k Key) Value {
 	return x.value
 }
 
+// Put will store v in the tree associated with Key k
+// When k is nil, the method will directly return and no values will be stored
 func (t *RBTree) Put(k Key, v Value) {
+	if k == nil { // refuse nil key
+		return
+	}
 	if t.root == nil {
 		t.root = newNode(k, v, BLACK)
 	} else {
@@ -317,6 +327,7 @@ func (t *RBTree) Put(k Key, v Value) {
 	}
 }
 
+// Delete deletes the Value associated with Key k from the tree if the key exists
 func (t *RBTree) Delete(k Key) {
 	if t.root == nil {
 		return
@@ -330,18 +341,17 @@ func (t *RBTree) Delete(k Key) {
 	}
 }
 
+// Contains returns whether a Value associated with Key k is stored in the tree
 func (t *RBTree) Contains(k Key) bool {
-	x := t.root.find(k)
-	if x == nil {
-		return false
-	}
-	return true
+	return t.root.find(k) != nil
 }
 
+// IsEmpty returns whether the tree is empty
 func (t *RBTree) IsEmpty() bool {
 	return t.Size() == 0
 }
 
+// Size returns the number of Key in the tree
 func (t *RBTree) Size() int {
 	if t.root == nil {
 		return 0
@@ -389,4 +399,51 @@ func (t *RBTree) DeleteMax() {
 	if t.root != nil {
 		t.root.color = BLACK
 	}
+}
+
+// Keys returns a slice of Key which including all keys in the tree
+// the returned slice is sorted
+func (t *RBTree) Keys() []Key {
+	keys := make([]Key, 0, t.Size())
+
+	var getKeys func(x *node)
+	getKeys = func(x *node) {
+		if x == nil {
+			return
+		}
+		getKeys(x.left)
+		keys = append(keys, x.key)
+		getKeys(x.right)
+	}
+	getKeys(t.root)
+
+	return keys
+}
+
+// KeysBetween returns a sorted slice of Key, for each element k, k >= lb and k <= ub hold
+func (t *RBTree) KeysBetween(lb, ub Key) []Key {
+	keys := make([]Key, 0)
+	if lb.CompareTo(ub) > 0 {
+		return keys
+	}
+
+	var getKeys func(x *node)
+	getKeys = func(x *node) {
+		if x == nil {
+			return
+		}
+		if x.key.CompareTo(lb) >= 0 {
+			getKeys(x.left)
+			if x.key.CompareTo(ub) <= 0 {
+				// x.key is in [lb, ub]
+				keys = append(keys, x.key)
+			} else {
+				return
+			}
+		}
+		getKeys(x.right)
+	}
+
+	getKeys(t.root)
+	return keys
 }
