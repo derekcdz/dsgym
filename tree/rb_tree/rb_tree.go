@@ -296,6 +296,7 @@ func (x *node) delete(k Key) *node {
 	return nx.balance()
 }
 
+// Init initializes the tree, it deletes all keys from the tree
 func (t *RBTree) Init() {
 	t.root = nil
 }
@@ -359,6 +360,7 @@ func (t *RBTree) Size() int {
 	return t.root.size
 }
 
+// Min returns the minimum key of the tree
 func (t *RBTree) Min() Key {
 	min := t.root.findMin()
 	if min == nil {
@@ -367,6 +369,7 @@ func (t *RBTree) Min() Key {
 	return min.key
 }
 
+// Min returns the minimum key of the tree
 func (t *RBTree) Max() Key {
 	max := t.root.findMax()
 	if max == nil {
@@ -375,6 +378,7 @@ func (t *RBTree) Max() Key {
 	return max.key
 }
 
+// DeleteMin deletes the minimum key from the tree
 func (t *RBTree) DeleteMin() {
 	if t.root == nil {
 		return
@@ -388,6 +392,7 @@ func (t *RBTree) DeleteMin() {
 	}
 }
 
+// DeleteMin deletes the maximum key from the tree
 func (t *RBTree) DeleteMax() {
 	if t.root == nil {
 		return
