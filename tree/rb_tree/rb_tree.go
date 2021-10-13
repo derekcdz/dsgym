@@ -64,15 +64,9 @@ func (x *node) isRed() bool {
 }
 
 func (x *node) flipColors() {
-	if x.color == BLACK {
-		x.color = RED
-		x.left.color = BLACK
-		x.right.color = BLACK
-	} else {
-		x.color = BLACK
-		x.left.color = RED
-		x.right.color = RED
-	}
+	x.color = !x.color
+	x.left.color = !x.left.color
+	x.right.color = !x.right.color
 }
 
 func newNode(k Key, v Value, c color) *node {
@@ -200,9 +194,6 @@ func (x *node) findMax() *node {
 
 func (x *node) balance() *node {
 	nx := x
-	if nx.right.isRed() {
-		nx = nx.rotateLeft()
-	}
 	if !nx.left.isRed() && nx.right.isRed() {
 		nx = nx.rotateLeft()
 	}
@@ -224,6 +215,7 @@ func (x *node) moveRedLeft() *node {
 	if nx.getRight().getLeft().isRed() {
 		nx.right = nx.getRight().rotateRight()
 		nx = nx.rotateLeft()
+		nx.flipColors()
 	}
 	return nx
 }
@@ -244,8 +236,9 @@ func (x *node) deleteMin() *node {
 func (x *node) moveRedRight() *node {
 	nx := x
 	nx.flipColors()
-	if !nx.left.getLeft().isRed() {
+	if nx.left.getLeft().isRed() {
 		nx = nx.rotateRight()
+		nx.flipColors()
 	}
 	return nx
 }
@@ -262,6 +255,44 @@ func (x *node) deleteMax() *node {
 		nx = nx.moveRedRight()
 	}
 	nx.right = nx.right.deleteMax()
+	return nx.balance()
+}
+
+func (x *node) delete(k Key) *node {
+	if x == nil {
+		return nil
+	}
+	nx := x
+	if k.CompareTo(nx.key) < 0 {
+		if nx.left != nil && !nx.left.isRed() && !nx.left.getLeft().isRed() {
+			nx = nx.moveRedLeft()
+		}
+		nx.left = nx.left.delete(k)
+	} else {
+		if nx.left.isRed() {
+			// keep current node is the right key of a 3-node
+			// because of the rotation, the new root's key is less than k
+			nx = nx.rotateRight()
+			nx.right = nx.right.delete(k)
+		} else {
+			// here nx is the right key of a 3-node, which also means nx.left.color == BLACK
+			// when it has no right child, it must not have left child neither, we can safely delete it
+			if nx.right == nil && k.CompareTo(nx.key) == 0 {
+				return nil
+			}
+			if nx.right != nil && !nx.right.isRed() && !nx.right.getLeft().isRed() {
+				nx = nx.moveRedRight()
+			}
+			if k.CompareTo(nx.key) == 0 {
+				rmin := nx.right.findMin()
+				nx.key = rmin.key
+				nx.value = rmin.value
+				nx.right = nx.right.deleteMin()
+			} else {
+				nx.right = nx.right.delete(k)
+			}
+		}
+	}
 	return nx.balance()
 }
 
@@ -284,6 +315,27 @@ func (t *RBTree) Put(k Key, v Value) {
 		t.root = t.root.insert(k, v)
 		t.root.color = BLACK
 	}
+}
+
+func (t *RBTree) Delete(k Key) {
+	if t.root == nil {
+		return
+	}
+	if !t.root.left.isRed() && !t.root.right.isRed() {
+		t.root.color = RED
+	}
+	t.root = t.root.delete(k)
+	if t.root != nil {
+		t.root.color = BLACK
+	}
+}
+
+func (t *RBTree) Contains(k Key) bool {
+	x := t.root.find(k)
+	if x == nil {
+		return false
+	}
+	return true
 }
 
 func (t *RBTree) IsEmpty() bool {

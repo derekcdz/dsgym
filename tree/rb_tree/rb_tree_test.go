@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"strings"
 	"testing"
 )
 
@@ -54,6 +55,15 @@ func TestRBTree_Get(t *testing.T) {
 	assert.Nil(t, rbt.Get(str("Z")))
 }
 
+func TestRBTree_Size(t *testing.T) {
+	var rbt RBTree
+	assert.Zero(t, rbt.Size())
+	rbt.Put(str("A"), "A")
+	assert.Equal(t, 1, rbt.Size())
+	putEachChar(&rbt, "ABCDE")
+	assert.Equal(t, 5, rbt.Size())
+}
+
 func TestRBTree_IsEmpty(t *testing.T) {
 	var rbt RBTree
 	assert.True(t, rbt.IsEmpty())
@@ -68,6 +78,15 @@ func TestRBTree_Min(t *testing.T) {
 	for i := len(s) - 1; i >= 0; i-- {
 		rbt.Put(str(string(s[i])), "A")
 		assert.Equal(t, str(string(s[i])), rbt.Min())
+	}
+}
+
+func TestRBTree_Max(t *testing.T) {
+	var rbt RBTree
+	s := "ABCDEFGHI"
+	for i := 0; i < len(s); i++ {
+		rbt.Put(str(string(s[i])), "A")
+		assert.Equal(t, str(string(s[i])), rbt.Max())
 	}
 }
 
@@ -95,6 +114,37 @@ func TestRBTree_DeleteMax(t *testing.T) {
 	}
 	assert.Nil(t, rbt.Max())
 	assert.True(t, rbt.IsEmpty())
+}
+
+func TestRBTree_Delete(t *testing.T) {
+	var rbt RBTree
+	l := 100
+	dict := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	mp := make(map[rune]bool)
+	var b strings.Builder
+	for i := 0; i < l; i++ {
+		b.WriteByte(dict[rand.Intn(len(dict))])
+	}
+	s := b.String()
+
+	for _, c := range s {
+		rbt.Put(str(string(c)), true)
+		mp[c] = true
+	}
+
+	for i, c := range s {
+		k := str(string(c))
+		val := rbt.Get(k)
+		if (val == nil && mp[c]) || (val == true && !mp[c]) {
+			t.Fatalf("Returned result differs from built-in map\nString: %s\nKey: %v\nIndex: %d\n", s, k, i)
+		}
+		mp[c] = false
+		rbt.Delete(str(string(c)))
+		val = rbt.Get(k)
+		if (val == nil && mp[c]) || (val == true && !mp[c]) {
+			t.Fatalf("Returned result differs from built-in map\nString: %s\nKey: %v\nIndex: %d\n", s, k, i)
+		}
+	}
 }
 
 func TestRBTree(t *testing.T) {
