@@ -269,6 +269,34 @@ func TestRBTree_KeysBetween2(t *testing.T) {
 	}
 }
 
+func TestRBTree_Floor(t *testing.T) {
+	var rbt RBTree
+	s := "ACEGIKMOQSUWY"
+	putEachChar(&rbt, s)
+
+	for _, x := range s {
+		assert.Equal(t, str(x), rbt.Floor(str(x)))
+	}
+	for _, x := range s {
+		assert.Equal(t, str(x), rbt.Floor(str(x+1)))
+	}
+	assert.Nil(t, rbt.Floor(str(s[0]-1)))
+}
+
+func TestRBTree_Ceiling(t *testing.T) {
+	var rbt RBTree
+	s := "ACEGIKMOQSUWY"
+	putEachChar(&rbt, s)
+
+	for _, x := range s {
+		assert.Equal(t, str(x), rbt.Ceiling(str(x)))
+	}
+	for _, x := range s {
+		assert.Equal(t, str(x), rbt.Ceiling(str(x-1)))
+	}
+	assert.Nil(t, rbt.Ceiling(str(s[len(s)-1]+1)))
+}
+
 func TestRBTree(t *testing.T) {
 	rand.Seed(42)
 

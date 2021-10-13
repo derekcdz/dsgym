@@ -296,6 +296,38 @@ func (x *node) delete(k Key) *node {
 	return nx.balance()
 }
 
+func (x *node) floor(k Key) *node {
+	if x == nil {
+		return nil
+	}
+	cmp := x.key.CompareTo(k)
+	if cmp <= 0 {
+		r := x.right.floor(k)
+		if r != nil {
+			return r
+		}
+		return x
+	} else {
+		return x.left.floor(k)
+	}
+}
+
+func (x *node) ceiling(k Key) *node {
+	if x == nil {
+		return nil
+	}
+	cmp := x.key.CompareTo(k)
+	if cmp >= 0 {
+		l := x.left.ceiling(k)
+		if l != nil {
+			return l
+		}
+		return x
+	} else {
+		return x.right.ceiling(k)
+	}
+}
+
 // Init initializes the tree, it deletes all keys from the tree
 func (t *RBTree) Init() {
 	t.root = nil
@@ -376,6 +408,23 @@ func (t *RBTree) Max() Key {
 		return nil
 	}
 	return max.key
+}
+
+// Floor returns the maximum key which is less than k
+func (t *RBTree) Floor(k Key) Key {
+	x := t.root.floor(k)
+	if x == nil {
+		return nil
+	}
+	return x.key
+}
+
+func (t *RBTree) Ceiling(k Key) Key {
+	x := t.root.ceiling(k)
+	if x == nil {
+		return nil
+	}
+	return x.key
 }
 
 // DeleteMin deletes the minimum key from the tree
